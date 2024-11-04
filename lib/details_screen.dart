@@ -230,6 +230,9 @@ class _Scores extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO
+    final Product product = generateFakeProduct();
+
     return Container(
       color: AppColors.gray1,
       width: double.infinity,
@@ -242,14 +245,14 @@ class _Scores extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
+              Expanded(
                 flex: 44,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsetsDirectional.only(end: 5.0),
+                    padding: const EdgeInsetsDirectional.only(end: 5.0),
                     child: _Nutriscore(
-                      nutriscore: ProductNutriscore.A,
+                      nutriscore: product.nutriScore ?? ProductNutriscore.A,
                     ),
                   ),
                 ),
@@ -259,14 +262,14 @@ class _Scores extends StatelessWidget {
                 height: 100.0,
                 color: Theme.of(context).dividerColor,
               ),
-              const Expanded(
+              Expanded(
                 flex: 66,
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsetsDirectional.only(start: 25.0),
+                    padding: const EdgeInsetsDirectional.only(start: 25.0),
                     child: _NovaGroup(
-                      novaScore: ProductNovaScore.Group1,
+                      novaScore: product.novaScore ?? ProductNovaScore.Group1,
                     ),
                   ),
                 ),
@@ -277,13 +280,13 @@ class _Scores extends StatelessWidget {
         const Divider(
           height: 1.0,
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(
+        Padding(
+          padding: const EdgeInsets.symmetric(
             vertical: _verticalPadding,
             horizontal: _horizontalPadding,
           ),
           child: _EcoScore(
-            ecoScore: ProductEcoScore.D,
+            ecoScore: product.ecoScore ?? ProductEcoScore.D,
           ),
         ),
       ]),
@@ -481,22 +484,25 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    // TODO
+    final Product product = generateFakeProduct();
+
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         _ProductItemValue(
           label: 'Quantité',
-          value: '200g (égoutté 130g)',
+          value: product.quantity ?? '-',
         ),
         _ProductItemValue(
-          label: 'Vendu',
-          value: 'France',
+          label: 'Vendu en',
+          value: product.manufacturingCountries?.join(', ') ?? '-',
           includeDivider: false,
         ),
-        SizedBox(
+        const SizedBox(
           height: 15.0,
         ),
-        Row(
+        const Row(
           children: [
             Expanded(
               flex: 40,
