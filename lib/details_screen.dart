@@ -42,32 +42,35 @@ class _ProductInfoState extends State<DetailsScreen> {
         _onScroll();
         return false;
       },
-      child: Material(
-        child: Stack(children: [
-          Image.network(
-            'https://plus.unsplash.com/premium_photo-1663858367001-89e5c92d1e0e?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            width: double.infinity,
-            height: DetailsScreen.kImageHeight,
-            fit: BoxFit.cover,
-            color: Colors.black.withOpacity(_currentScrollProgress),
-            colorBlendMode: BlendMode.srcATop,
-          ),
-          Positioned.fill(
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Scrollbar(
+      child: ProductProvider(
+        product: generateFakeProduct(),
+        child: Material(
+          child: Stack(children: [
+            Image.network(
+              'https://plus.unsplash.com/premium_photo-1663858367001-89e5c92d1e0e?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+              width: double.infinity,
+              height: DetailsScreen.kImageHeight,
+              fit: BoxFit.cover,
+              color: Colors.black.withOpacity(_currentScrollProgress),
+              colorBlendMode: BlendMode.srcATop,
+            ),
+            Positioned.fill(
+              child: SingleChildScrollView(
                 controller: scrollController,
-                trackVisibility: true,
-                child: Container(
-                  margin: const EdgeInsetsDirectional.only(
-                    top: DetailsScreen.kImageHeight - 30.0,
+                child: Scrollbar(
+                  controller: scrollController,
+                  trackVisibility: true,
+                  child: Container(
+                    margin: const EdgeInsetsDirectional.only(
+                      top: DetailsScreen.kImageHeight - 30.0,
+                    ),
+                    child: const _Body(),
                   ),
-                  child: const _Body(),
                 ),
               ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     );
   }
@@ -187,9 +190,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-
-    // TODO
-    final Product product = generateFakeProduct();
+    final Product product = ProductProvider.of(context).product;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -230,8 +231,7 @@ class _Scores extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO
-    final Product product = generateFakeProduct();
+    final Product product = ProductProvider.of(context).product;
 
     return Container(
       color: AppColors.gray1,
@@ -484,8 +484,7 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO
-    final Product product = generateFakeProduct();
+    final Product product = ProductProvider.of(context).product;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -613,3 +612,25 @@ class _ProductBubble extends StatelessWidget {
 }
 
 enum _ProductBubbleValue { on, off }
+
+class ProductProvider extends InheritedWidget {
+  const ProductProvider({
+    required this.product,
+    required super.child,
+    super.key,
+  });
+
+  final Product product;
+
+  static ProductProvider of(BuildContext context) {
+    final ProductProvider? result =
+        context.dependOnInheritedWidgetOfExactType<ProductProvider>();
+    assert(result != null, 'No ProductProvider found in context');
+    return result!;
+  }
+
+  @override
+  bool updateShouldNotify(ProductProvider oldWidget) {
+    return product != oldWidget.product;
+  }
+}
