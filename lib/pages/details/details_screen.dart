@@ -144,11 +144,18 @@ class _HeaderIconState extends State<_HeaderIcon> {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends StatefulWidget {
   static const double _kHorizontalPadding = 20.0;
   static const double _kVerticalPadding = 30.0;
 
   const _Body();
+
+  @override
+  State<_Body> createState() => _BodyState();
+}
+
+class _BodyState extends State<_Body> {
+  Color _bubbleColor = AppColors.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -160,23 +167,37 @@ class _Body extends StatelessWidget {
           topEnd: Radius.circular(16.0),
         ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
+          TextButton(
+              onPressed: () {
+                if (_bubbleColor == AppColors.blue) {
+                  _bubbleColor = AppColors.yellow;
+                } else {
+                  _bubbleColor = AppColors.blue;
+                }
+
+                setState(() {});
+              },
+              child: const Text('Changer couleur')),
+          const Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: _kHorizontalPadding,
-              vertical: _kVerticalPadding,
+              horizontal: _Body._kHorizontalPadding,
+              vertical: _Body._kVerticalPadding,
             ),
             child: _Header(),
           ),
-          _Scores(),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _kHorizontalPadding,
-              vertical: _kVerticalPadding,
+          const _Scores(),
+          ProductBubbleColorProvider(
+            color: _bubbleColor,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: _Body._kHorizontalPadding,
+                vertical: _Body._kVerticalPadding,
+              ),
+              child: _Info(),
             ),
-            child: _Info(),
           ),
         ],
       ),
@@ -580,7 +601,7 @@ class _ProductBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.blueLight,
+        color: ProductBubbleColorProvider.of(context).color,
         borderRadius: BorderRadius.circular(10.0),
       ),
       padding: const EdgeInsets.symmetric(
@@ -632,5 +653,27 @@ class ProductProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(ProductProvider oldWidget) {
     return product != oldWidget.product;
+  }
+}
+
+class ProductBubbleColorProvider extends InheritedWidget {
+  const ProductBubbleColorProvider({
+    super.key,
+    required this.color,
+    required super.child,
+  });
+
+  final Color color;
+
+  static ProductBubbleColorProvider of(BuildContext context) {
+    final ProductBubbleColorProvider? result = context
+        .dependOnInheritedWidgetOfExactType<ProductBubbleColorProvider>();
+    assert(result != null, 'No ProductBubbleColorProvider found in context');
+    return result!;
+  }
+
+  @override
+  bool updateShouldNotify(ProductBubbleColorProvider old) {
+    return color != old.color;
   }
 }
