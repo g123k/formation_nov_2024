@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled1/model/product.dart';
 import 'package:untitled1/res/app_colors.dart';
 import 'package:untitled1/res/app_icons.dart';
@@ -144,18 +145,11 @@ class _HeaderIconState extends State<_HeaderIcon> {
   }
 }
 
-class _Body extends StatefulWidget {
+class _Body extends StatelessWidget {
   static const double _kHorizontalPadding = 20.0;
   static const double _kVerticalPadding = 30.0;
 
   const _Body();
-
-  @override
-  State<_Body> createState() => _BodyState();
-}
-
-class _BodyState extends State<_Body> {
-  Color _bubbleColor = AppColors.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -167,39 +161,36 @@ class _BodyState extends State<_Body> {
           topEnd: Radius.circular(16.0),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextButton(
-              onPressed: () {
-                if (_bubbleColor == AppColors.blue) {
-                  _bubbleColor = AppColors.yellow;
-                } else {
-                  _bubbleColor = AppColors.blue;
-                }
-
-                setState(() {});
-              },
-              child: const Text('Changer couleur')),
-          const Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _Body._kHorizontalPadding,
-              vertical: _Body._kVerticalPadding,
+      child: ChangeNotifierProvider(
+        create: (_) => ColorNotifier(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Builder(builder: (context) {
+              return TextButton(
+                onPressed: () {
+                  Provider.of<ColorNotifier>(context, listen: false).blue();
+                },
+                child: const Text('Changer couleur'),
+              );
+            }),
+            const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: _Body._kHorizontalPadding,
+                vertical: _Body._kVerticalPadding,
+              ),
+              child: _Header(),
             ),
-            child: _Header(),
-          ),
-          const _Scores(),
-          ProductBubbleColorProvider(
-            color: _bubbleColor,
-            child: const Padding(
+            const _Scores(),
+            const Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: _Body._kHorizontalPadding,
                 vertical: _Body._kVerticalPadding,
               ),
               child: _Info(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -599,35 +590,41 @@ class _ProductBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: ProductBubbleColorProvider.of(context).color,
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 10.0,
-        horizontal: 15.0,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            value == _ProductBubbleValue.on
-                ? AppIcons.checkmark
-                : AppIcons.close,
-            color: AppColors.white,
+    Provider.of<ColorNotifier>(context, listen: true);
+
+    return Consumer<ColorNotifier>(
+      builder: (BuildContext context, ColorNotifier colorNotifier, _) {
+        return Container(
+          decoration: BoxDecoration(
+            color: colorNotifier.value,
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          const SizedBox(
-            width: 10.0,
+          padding: const EdgeInsets.symmetric(
+            vertical: 10.0,
+            horizontal: 15.0,
           ),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(color: AppColors.white),
-            ),
-          )
-        ],
-      ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                value == _ProductBubbleValue.on
+                    ? AppIcons.checkmark
+                    : AppIcons.close,
+                color: AppColors.white,
+              ),
+              const SizedBox(
+                width: 10.0,
+              ),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(color: AppColors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -675,5 +672,21 @@ class ProductBubbleColorProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(ProductBubbleColorProvider old) {
     return color != old.color;
+  }
+}
+
+// ChangeNotifier
+// ValueNotifier
+
+class ColorNotifier extends ValueNotifier<Color> {
+  // Valeur initiale
+  ColorNotifier() : super(Colors.red);
+
+  void blue() {
+    value = Colors.blue;
+  }
+
+  void green() {
+    value = Colors.green;
   }
 }

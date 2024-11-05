@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MyStateless extends StatelessWidget {
   const MyStateless({super.key});
@@ -28,7 +29,10 @@ class _MyStatefullState extends State<MyStatefull> {
       body: Column(
         children: [
           Text('Counter : $counter'),
-          MyTexts(),
+          Provider<int>(
+            create: (_) => attr,
+            child: MyTexts(),
+          ),
           TextButton(
               onPressed: () {
                 setState(() {
@@ -73,7 +77,8 @@ class _MyTextsState extends State<MyTexts> {
 
   @override
   Widget build(BuildContext context) {
-    print('Build MyTexts ${MyInherited.of(context).attr}');
+    print('Build MyTexts ${Provider.of<int>(context)}');
+    print('Build MyTexts ${context.watch<int>()}');
 
     return Column(
       children: [
