@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled1/app_colors.dart';
-import 'package:untitled1/product.dart';
+import 'package:untitled1/model/product.dart';
+import 'package:untitled1/res/app_colors.dart';
 import 'package:untitled1/res/app_icons.dart';
 import 'package:untitled1/res/app_images.dart';
 

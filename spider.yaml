@@ -1,3 +1,4 @@
+# Lancer Spider "spider build --verbose --watch"
 no_comments: true
 package: res
 
@@ -6,3 +7,8 @@ groups:
     class_name: AppImages
     package: res
     types: [ .jpg, .png, .webp ]
+
+  - path: res/svg
+    class_name: AppVectorialImages
+    package: res
+    types: [ .svg ]
