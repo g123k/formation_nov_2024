@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled1/pages/details2/details_screen.dart';
+import 'package:untitled1/pages/details/details_screen.dart';
 import 'package:untitled1/res/app_colors.dart';
 
 void main() {
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: const DetailsScreen2(),
+      home: const DetailsScreen(),
     );
   }
 }

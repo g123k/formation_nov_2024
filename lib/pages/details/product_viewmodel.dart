@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:untitled1/api/open_food_facts_api.dart';
 import 'package:untitled1/model/product.dart';
 
 class ProductViewModel extends ValueNotifier<ProductState> {
@@ -10,12 +11,13 @@ class ProductViewModel extends ValueNotifier<ProductState> {
     value = const ProductStateLoading();
 
     try {
-      // TODO Faire la requête
-      await Future.delayed(const Duration(seconds: 2));
-      Product product = generateFakeProduct();
+      final apiProduct = await OpenFoodFactsAPIManager().loadProduct(barcode);
+      print(apiProduct);
 
-      value = ProductStateSuccess(product);
+      /// TODO Mapper avec l'API
+      value = ProductStateSuccess(generateFakeProduct());
     } catch (e) {
+      print(e);
       value = ProductStateError(e);
     }
   }

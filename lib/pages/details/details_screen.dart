@@ -14,7 +14,7 @@ class DetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ProductViewModel>(
-      create: (_) => ProductViewModel('7622210449283'),
+      create: (_) => ProductViewModel('5000159484695'),
       child: Consumer<ProductViewModel>(
         builder: (BuildContext context, ProductViewModel viewModel, _) {
           return switch (viewModel.value) {
