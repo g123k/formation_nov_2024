@@ -101,7 +101,8 @@ Product generateFakeProduct() => Product(
       barcode: '3017620422003',
       name: 'Nutella',
       altName: 'Pâte à tartiner aux noisettes et au cacao',
-      picture: 'https://example.com/nutella.jpg',
+      picture:
+          'https://images.openfoodfacts.org/images/products/762/221/044/9283/front_fr.584.400.jpg',
       quantity: '750g',
       brands: ['Ferrero'],
       manufacturingCountries: ['France'],

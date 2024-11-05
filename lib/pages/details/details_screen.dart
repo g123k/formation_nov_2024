@@ -1,27 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled1/model/product.dart';
+import 'package:untitled1/pages/details/product_viewmodel.dart';
 import 'package:untitled1/res/app_colors.dart';
 import 'package:untitled1/res/app_icons.dart';
 import 'package:untitled1/res/app_images.dart';
 
-class DetailsScreen extends StatefulWidget {
+class DetailsScreen extends StatelessWidget {
   static const double kImageHeight = 300.0;
 
   const DetailsScreen({super.key});
 
   @override
-  State<DetailsScreen> createState() => _ProductInfoState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<ProductViewModel>(
+      create: (_) => ProductViewModel('7622210449283'),
+      child: Consumer<ProductViewModel>(
+        builder: (BuildContext context, ProductViewModel viewModel, _) {
+          return switch (viewModel.value) {
+            ProductStateLoading() => const _ProductLoading(),
+            ProductStateSuccess() => const _ProductBody(),
+            ProductStateError() => const _ProductError(),
+          };
+        },
+      ),
+    );
+  }
 }
 
-double _scrollProgress(BuildContext context) {
-  ScrollController? controller = PrimaryScrollController.of(context);
-  return !controller.hasClients
-      ? 0
-      : (controller.position.pixels / DetailsScreen.kImageHeight).clamp(0, 1);
+class _ProductLoading extends StatelessWidget {
+  const _ProductLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Material(
+      child: Center(
+        child: CircularProgressIndicator.adaptive(),
+      ),
+    );
+  }
 }
 
-class _ProductInfoState extends State<DetailsScreen> {
+class _ProductError extends StatelessWidget {
+  const _ProductError();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('Error'),
+    );
+  }
+}
+
+class _ProductBody extends StatefulWidget {
+  const _ProductBody();
+
+  @override
+  State<_ProductBody> createState() => _ProductBodyState();
+}
+
+class _ProductBodyState extends State<_ProductBody> {
   double _currentScrollProgress = 0.0;
 
   // Quand on scroll, on redraw pour changer la couleur de l'image
@@ -43,38 +81,46 @@ class _ProductInfoState extends State<DetailsScreen> {
         _onScroll();
         return false;
       },
-      child: ProductProvider(
-        product: generateFakeProduct(),
-        child: Material(
-          child: Stack(children: [
-            Image.network(
-              'https://plus.unsplash.com/premium_photo-1663858367001-89e5c92d1e0e?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-              width: double.infinity,
-              height: DetailsScreen.kImageHeight,
-              fit: BoxFit.cover,
-              color: Colors.black.withOpacity(_currentScrollProgress),
-              colorBlendMode: BlendMode.srcATop,
-            ),
-            Positioned.fill(
-              child: SingleChildScrollView(
+      child: Material(
+        child: Stack(children: [
+          Consumer<ProductViewModel>(
+            builder: (BuildContext context, ProductViewModel viewModel, _) {
+              return Image.network(
+                (viewModel.value as ProductStateSuccess).product.picture ?? '',
+                width: double.infinity,
+                height: DetailsScreen.kImageHeight,
+                fit: BoxFit.cover,
+                color: Colors.black.withOpacity(_currentScrollProgress),
+                colorBlendMode: BlendMode.srcATop,
+              );
+            },
+          ),
+          Positioned.fill(
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Scrollbar(
                 controller: scrollController,
-                child: Scrollbar(
-                  controller: scrollController,
-                  trackVisibility: true,
-                  child: Container(
-                    margin: const EdgeInsetsDirectional.only(
-                      top: DetailsScreen.kImageHeight - 30.0,
-                    ),
-                    child: const _Body(),
+                trackVisibility: true,
+                child: Container(
+                  margin: const EdgeInsetsDirectional.only(
+                    top: DetailsScreen.kImageHeight - 30.0,
                   ),
+                  child: const _Body(),
                 ),
               ),
             ),
-          ]),
-        ),
+          ),
+        ]),
       ),
     );
   }
+}
+
+double _scrollProgress(BuildContext context) {
+  ScrollController? controller = PrimaryScrollController.of(context);
+  return !controller.hasClients
+      ? 0
+      : (controller.position.pixels / DetailsScreen.kImageHeight).clamp(0, 1);
 }
 
 class _HeaderIcon extends StatefulWidget {
@@ -202,7 +248,9 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final Product product = ProductProvider.of(context).product;
+    final Product product =
+        (Provider.of<ProductViewModel>(context).value as ProductStateSuccess)
+            .product;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -243,7 +291,9 @@ class _Scores extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Product product = ProductProvider.of(context).product;
+    final Product product =
+        (Provider.of<ProductViewModel>(context).value as ProductStateSuccess)
+            .product;
 
     return Container(
       color: AppColors.gray1,
@@ -496,7 +546,9 @@ class _Info extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Product product = ProductProvider.of(context).product;
+    final Product product =
+        (Provider.of<ProductViewModel>(context).value as ProductStateSuccess)
+            .product;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -590,8 +642,6 @@ class _ProductBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<ColorNotifier>(context, listen: true);
-
     return Consumer<ColorNotifier>(
       builder: (BuildContext context, ColorNotifier colorNotifier, _) {
         return Container(
@@ -630,28 +680,6 @@ class _ProductBubble extends StatelessWidget {
 }
 
 enum _ProductBubbleValue { on, off }
-
-class ProductProvider extends InheritedWidget {
-  const ProductProvider({
-    required this.product,
-    required super.child,
-    super.key,
-  });
-
-  final Product product;
-
-  static ProductProvider of(BuildContext context) {
-    final ProductProvider? result =
-        context.dependOnInheritedWidgetOfExactType<ProductProvider>();
-    assert(result != null, 'No ProductProvider found in context');
-    return result!;
-  }
-
-  @override
-  bool updateShouldNotify(ProductProvider oldWidget) {
-    return product != oldWidget.product;
-  }
-}
 
 class ProductBubbleColorProvider extends InheritedWidget {
   const ProductBubbleColorProvider({
